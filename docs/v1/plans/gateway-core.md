@@ -24,7 +24,7 @@
 
 ### Task T1
 
-- [ ] Complete
+- [x] Complete
 - Goal: Initialize the Go module and implement domain models, ports, config,
   HTTP inbound adapter, orchestration use case, outbound API reporter, stub
   agent/recording/media adapters, and focused tests for the first dispatch
@@ -51,4 +51,3 @@
 - Keep adapters replaceable. Do not let HTTP DTOs leak into domain.
 - Do not add database persistence.
 - Keep SIP as a deferred boundary unless needed by the first dispatch flow.
-
