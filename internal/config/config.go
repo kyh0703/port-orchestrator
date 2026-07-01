@@ -16,6 +16,9 @@ type Config struct {
 	APIReportMaxAttempts int
 	APIReportRetryDelay  time.Duration
 	APIReportTimeout     time.Duration
+	RecordBaseURL        string
+	RecordStartPath      string
+	RecordInternalToken  string
 	ShutdownTimeout      time.Duration
 }
 
@@ -29,6 +32,9 @@ func Load() Config {
 		APIReportMaxAttempts: envInt("PORT_API_REPORT_MAX_ATTEMPTS", 3),
 		APIReportRetryDelay:  envDuration("PORT_API_REPORT_RETRY_DELAY", 200*time.Millisecond),
 		APIReportTimeout:     envDuration("PORT_API_REPORT_TIMEOUT", 5*time.Second),
+		RecordBaseURL:        os.Getenv("PORT_RECORD_BASE_URL"),
+		RecordStartPath:      envString("PORT_RECORD_START_PATH", "/api/recordings/start"),
+		RecordInternalToken:  os.Getenv("PORT_RECORD_INTERNAL_API_TOKEN"),
 		ShutdownTimeout:      envDuration("GATEWAY_SHUTDOWN_TIMEOUT", 10*time.Second),
 	}
 }
@@ -39,6 +45,12 @@ func (c Config) Validate() error {
 	}
 	if c.APIServiceToken == "" {
 		return errors.New("PORT_API_SERVICE_TOKEN is required")
+	}
+	if c.RecordBaseURL == "" {
+		return errors.New("PORT_RECORD_BASE_URL is required")
+	}
+	if c.RecordInternalToken == "" {
+		return errors.New("PORT_RECORD_INTERNAL_API_TOKEN is required")
 	}
 	return nil
 }

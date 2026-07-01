@@ -11,6 +11,7 @@ import (
 
 	"github.com/kyh0703/port-gateway/internal/adapters/inbound/httpapi"
 	"github.com/kyh0703/port-gateway/internal/adapters/outbound/apihttp"
+	"github.com/kyh0703/port-gateway/internal/adapters/outbound/recordhttp"
 	"github.com/kyh0703/port-gateway/internal/adapters/outbound/stub"
 	"github.com/kyh0703/port-gateway/internal/application/orchestration"
 	"github.com/kyh0703/port-gateway/internal/config"
@@ -27,6 +28,9 @@ func main() {
 	apiClient := &http.Client{
 		Timeout: cfg.APIReportTimeout,
 	}
+	recordClient := &http.Client{
+		Timeout: cfg.APIReportTimeout,
+	}
 
 	reporter := apihttp.NewReporter(apihttp.ReporterConfig{
 		BaseURL:      cfg.APIBaseURL,
@@ -37,9 +41,13 @@ func main() {
 	}, apiClient)
 
 	orchestrator := orchestration.NewService(orchestration.Dependencies{
-		Media:    stub.NewMediaConnector(logger),
-		Agent:    stub.NewAgentAttacher(logger),
-		Recorder: stub.NewRecorder(logger),
+		Media: stub.NewMediaConnector(logger),
+		Agent: stub.NewAgentAttacher(logger),
+		Recorder: recordhttp.NewRecorder(recordhttp.RecorderConfig{
+			BaseURL:      cfg.RecordBaseURL,
+			StartPath:    cfg.RecordStartPath,
+			ServiceToken: cfg.RecordInternalToken,
+		}, recordClient),
 		Reporter: reporter,
 		Clock:    time.Now,
 	})
