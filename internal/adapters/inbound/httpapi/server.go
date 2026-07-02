@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kyh0703/port-gateway/internal/domain/session"
-	"github.com/kyh0703/port-gateway/internal/ports"
+	"github.com/kyh0703/port-orchestrator/internal/domain/session"
+	"github.com/kyh0703/port-orchestrator/internal/ports"
 )
 
 type Config struct {

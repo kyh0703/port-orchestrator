@@ -9,18 +9,18 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/kyh0703/port-gateway/internal/adapters/inbound/httpapi"
-	"github.com/kyh0703/port-gateway/internal/adapters/outbound/apihttp"
-	"github.com/kyh0703/port-gateway/internal/adapters/outbound/stub"
-	"github.com/kyh0703/port-gateway/internal/application/orchestration"
-	"github.com/kyh0703/port-gateway/internal/config"
+	"github.com/kyh0703/port-orchestrator/internal/adapters/inbound/httpapi"
+	"github.com/kyh0703/port-orchestrator/internal/adapters/outbound/apihttp"
+	"github.com/kyh0703/port-orchestrator/internal/adapters/outbound/stub"
+	"github.com/kyh0703/port-orchestrator/internal/application/orchestration"
+	"github.com/kyh0703/port-orchestrator/internal/config"
 )
 
 func main() {
 	cfg := config.Load()
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	if err := cfg.Validate(); err != nil {
-		logger.Error("invalid gateway config", "error", err)
+		logger.Error("invalid orchestrator config", "error", err)
 		os.Exit(1)
 	}
 
@@ -56,7 +56,7 @@ func main() {
 
 	errCh := make(chan error, 1)
 	go func() {
-		logger.Info("gateway listening", "addr", cfg.HTTPAddr)
+		logger.Info("orchestrator listening", "addr", cfg.HTTPAddr)
 		errCh <- server.ListenAndServe()
 	}()
 
@@ -65,10 +65,10 @@ func main() {
 
 	select {
 	case sig := <-stop:
-		logger.Info("gateway shutting down", "signal", sig.String())
+		logger.Info("orchestrator shutting down", "signal", sig.String())
 	case err := <-errCh:
 		if err != nil && err != http.ErrServerClosed {
-			logger.Error("gateway failed", "error", err)
+			logger.Error("orchestrator failed", "error", err)
 			os.Exit(1)
 		}
 		return
@@ -77,7 +77,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
-		logger.Error("gateway shutdown failed", "error", err)
+		logger.Error("orchestrator shutdown failed", "error", err)
 		os.Exit(1)
 	}
 }

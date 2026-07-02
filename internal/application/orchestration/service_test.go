@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kyh0703/port-gateway/internal/domain/session"
+	"github.com/kyh0703/port-orchestrator/internal/domain/session"
 )
 
 func TestHandleDispatchReportsAgentAndRecordingStarted(t *testing.T) {
@@ -32,6 +32,38 @@ func TestHandleDispatchReportsAgentAndRecordingStarted(t *testing.T) {
 	expected := []session.EventType{session.EventAgentStarted, session.EventRecordingStarted}
 	if !sameEventSet(eventTypes, expected) {
 		t.Fatalf("event types = %v, want %v", eventTypes, expected)
+	}
+}
+
+func TestHandleDispatchPassesMediaContextToAgentAndRecorder(t *testing.T) {
+	agent := &recordingAgent{}
+	recorder := &recordingRecorder{}
+	service := NewService(Dependencies{
+		Media:    &recordingMedia{},
+		Agent:    agent,
+		Recorder: recorder,
+		Reporter: &recordingReporter{},
+		Clock: func() time.Time {
+			return time.Unix(10, 0)
+		},
+	})
+
+	err := service.HandleDispatch(context.Background(), validDispatch())
+	if err != nil {
+		t.Fatalf("HandleDispatch() error = %v", err)
+	}
+
+	if agent.attachment.MediaSignalingURL != "ws://media" {
+		t.Fatalf("agent media signaling url = %q, want ws://media", agent.attachment.MediaSignalingURL)
+	}
+	if agent.attachment.ParticipantToken != "agent_token" {
+		t.Fatalf("agent participant token = %q, want agent_token", agent.attachment.ParticipantToken)
+	}
+	if recorder.start.MediaSignalingURL != "ws://media" {
+		t.Fatalf("recorder media signaling url = %q, want ws://media", recorder.start.MediaSignalingURL)
+	}
+	if recorder.start.ParticipantToken != "recorder_token" {
+		t.Fatalf("recorder participant token = %q, want recorder_token", recorder.start.ParticipantToken)
 	}
 }
 
@@ -84,18 +116,22 @@ func (m *recordingMedia) JoinParticipant(context.Context, session.ParticipantJoi
 }
 
 type recordingAgent struct {
-	err error
+	err        error
+	attachment session.AgentAttachment
 }
 
-func (a *recordingAgent) Attach(context.Context, session.AgentAttachment) error {
+func (a *recordingAgent) Attach(_ context.Context, attachment session.AgentAttachment) error {
+	a.attachment = attachment
 	return a.err
 }
 
 type recordingRecorder struct {
-	err error
+	err   error
+	start session.RecordingStart
 }
 
-func (r *recordingRecorder) Start(context.Context, session.RecordingStart) error {
+func (r *recordingRecorder) Start(_ context.Context, start session.RecordingStart) error {
+	r.start = start
 	return r.err
 }
 

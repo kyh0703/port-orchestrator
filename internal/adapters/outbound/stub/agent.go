@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/kyh0703/port-gateway/internal/domain/session"
+	"github.com/kyh0703/port-orchestrator/internal/domain/session"
 )
 
 type AgentAttacher struct {
@@ -25,6 +25,7 @@ func (a *AgentAttacher) Attach(_ context.Context, attachment session.AgentAttach
 		"session_id", attachment.SessionID,
 		"room_id", attachment.RoomID,
 		"participant_id", attachment.ParticipantID,
+		"media_signaling_url", attachment.MediaSignalingURL,
 	)
 	return nil
 }

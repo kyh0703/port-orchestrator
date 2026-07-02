@@ -66,17 +66,21 @@ type ParticipantJoin struct {
 }
 
 type AgentAttachment struct {
-	ConversationID string
-	SessionID      string
-	RoomID         string
-	ParticipantID  string
+	ConversationID    string
+	SessionID         string
+	RoomID            string
+	MediaSignalingURL string
+	ParticipantID     string
+	ParticipantToken  string
 }
 
 type RecordingStart struct {
-	ConversationID string
-	SessionID      string
-	RoomID         string
-	ParticipantID  string
+	ConversationID    string
+	SessionID         string
+	RoomID            string
+	MediaSignalingURL string
+	ParticipantID     string
+	ParticipantToken  string
 }
 
 type LifecycleEvent struct {

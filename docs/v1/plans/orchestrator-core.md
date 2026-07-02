@@ -1,8 +1,8 @@
-# Gateway Core
+# Orchestrator Core
 
 ## Goal
 
-- Build the first runnable Go `port-gateway` service for internal API dispatch,
+- Build the first runnable Go `port-orchestrator` service for internal API dispatch,
   agent attach orchestration, optional recording start, and API lifecycle
   reporting.
 
@@ -11,11 +11,11 @@
 - docs/STATE.md
 - docs/ROADMAP.md
 - docs/ARCHITECTURE.md
-- docs/v1/designs/2026-06-30-v1-gateway-core.md
+- docs/v1/designs/2026-06-30-v1-orchestrator-core.md
 
 ## Workspace
 
-- Branch: feat/v1-gateway-core
+- Branch: feat/v1-orchestrator-core
 - Base: main
 - Isolation: required
 - Created by: planning via docs lifecycle
@@ -36,14 +36,14 @@
   - go.sum
   - Makefile
   - README.md
-  - cmd/gateway/**
+  - cmd/orchestrator/**
   - internal/**
 - Read Context:
   - docs/ARCHITECTURE.md
-  - docs/v1/designs/2026-06-30-v1-gateway-core.md
+  - docs/v1/designs/2026-06-30-v1-orchestrator-core.md
 - Checks:
   - go test ./...
-  - go build ./cmd/gateway
+  - go build ./cmd/orchestrator
 - Parallel-safe: no
 
 ## Notes

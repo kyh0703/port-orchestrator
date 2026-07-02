@@ -21,21 +21,21 @@ type Config struct {
 
 func Load() Config {
 	return Config{
-		HTTPAddr:             envString("GATEWAY_HTTP_ADDR", ":8080"),
-		ServiceToken:         os.Getenv("GATEWAY_SERVICE_TOKEN"),
+		HTTPAddr:             envString("ORCHESTRATOR_HTTP_ADDR", ":8080"),
+		ServiceToken:         os.Getenv("ORCHESTRATOR_SERVICE_TOKEN"),
 		APIBaseURL:           envString("PORT_API_BASE_URL", "http://localhost:3000"),
 		APIEventPath:         envString("PORT_API_EVENT_PATH", "/internal/v1/gateway/events"),
 		APIServiceToken:      os.Getenv("PORT_API_SERVICE_TOKEN"),
 		APIReportMaxAttempts: envInt("PORT_API_REPORT_MAX_ATTEMPTS", 3),
 		APIReportRetryDelay:  envDuration("PORT_API_REPORT_RETRY_DELAY", 200*time.Millisecond),
 		APIReportTimeout:     envDuration("PORT_API_REPORT_TIMEOUT", 5*time.Second),
-		ShutdownTimeout:      envDuration("GATEWAY_SHUTDOWN_TIMEOUT", 10*time.Second),
+		ShutdownTimeout:      envDuration("ORCHESTRATOR_SHUTDOWN_TIMEOUT", 10*time.Second),
 	}
 }
 
 func (c Config) Validate() error {
 	if c.ServiceToken == "" {
-		return errors.New("GATEWAY_SERVICE_TOKEN is required")
+		return errors.New("ORCHESTRATOR_SERVICE_TOKEN is required")
 	}
 	if c.APIServiceToken == "" {
 		return errors.New("PORT_API_SERVICE_TOKEN is required")

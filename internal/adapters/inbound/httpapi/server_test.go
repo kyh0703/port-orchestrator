@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kyh0703/port-gateway/internal/domain/session"
+	"github.com/kyh0703/port-orchestrator/internal/domain/session"
 )
 
 func TestDispatchRejectsMissingServiceAuth(t *testing.T) {

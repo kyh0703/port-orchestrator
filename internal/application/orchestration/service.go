@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kyh0703/port-gateway/internal/domain/session"
-	"github.com/kyh0703/port-gateway/internal/ports"
+	"github.com/kyh0703/port-orchestrator/internal/domain/session"
+	"github.com/kyh0703/port-orchestrator/internal/ports"
 )
 
 type Clock func() time.Time
@@ -101,10 +101,12 @@ func (s *Service) attachAgent(ctx context.Context, dispatch session.Dispatch) er
 	}
 
 	attachment := session.AgentAttachment{
-		ConversationID: dispatch.ConversationID,
-		SessionID:      dispatch.SessionID,
-		RoomID:         dispatch.RoomID,
-		ParticipantID:  dispatch.Agent.ParticipantID,
+		ConversationID:    dispatch.ConversationID,
+		SessionID:         dispatch.SessionID,
+		RoomID:            dispatch.RoomID,
+		MediaSignalingURL: dispatch.MediaSignalingURL,
+		ParticipantID:     dispatch.Agent.ParticipantID,
+		ParticipantToken:  dispatch.Agent.Token,
 	}
 	if err := s.agent.Attach(ctx, attachment); err != nil {
 		return s.reportAgentFailure(ctx, dispatch, err)
@@ -152,10 +154,12 @@ func (s *Service) startRecording(ctx context.Context, dispatch session.Dispatch)
 	}
 
 	start := session.RecordingStart{
-		ConversationID: dispatch.ConversationID,
-		SessionID:      dispatch.SessionID,
-		RoomID:         dispatch.RoomID,
-		ParticipantID:  dispatch.Recorder.ParticipantID,
+		ConversationID:    dispatch.ConversationID,
+		SessionID:         dispatch.SessionID,
+		RoomID:            dispatch.RoomID,
+		MediaSignalingURL: dispatch.MediaSignalingURL,
+		ParticipantID:     dispatch.Recorder.ParticipantID,
+		ParticipantToken:  dispatch.Recorder.Token,
 	}
 	if err := s.recorder.Start(ctx, start); err != nil {
 		return s.reportRecordingFailure(ctx, dispatch, err)

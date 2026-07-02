@@ -1,31 +1,31 @@
 ---
-feature: gateway-core
+feature: orchestrator-core
 status: plan_ready
 created_at: 2026-06-30T00:00:00+09:00
 ---
 
-# Gateway Core
+# Orchestrator Core
 
 ## Context / Inputs
 
-- `docs/ARCHITECTURE.md` defines `port-gateway` as the internal orchestration
+- `docs/ARCHITECTURE.md` defines `port-orchestrator` as the internal orchestration
   layer between `../port-api` and `../port-media`.
 - `../port-api` owns user auth, durable conversation state, token issuance, and
   event persistence.
 - `../port-media` owns SFU rooms, signaling, participants, tracks, and live
   media forwarding.
-- Gateway must be written in Go with a practical DDD + Hexagonal structure.
+- Orchestrator must be written in Go with a practical DDD + Hexagonal structure.
 
 ## Problem Statement
 
-Create the first runnable gateway service that can receive internal dispatch,
+Create the first runnable orchestrator service that can receive internal dispatch,
 validate service authentication, coordinate agent and recording attach work
 through ports, and report lifecycle events back to API without taking ownership
 of durable state or media forwarding.
 
 ## Decision Drivers
 
-- Keep gateway as an internal service, not a public browser API.
+- Keep orchestrator as an internal service, not a public browser API.
 - Use Go concurrency for session-scoped orchestration, cancellation, timeouts,
   and retryable outbound callbacks.
 - Keep domain rules independent from HTTP, WebSocket, process, and API clients.
@@ -56,7 +56,7 @@ runtime dependencies needed by the first slice.
 
 In:
 
-- Go module and runnable `cmd/gateway`.
+- Go module and runnable `cmd/orchestrator`.
 - Service auth middleware for dispatch.
 - `POST /internal/v1/dispatches`.
 - `GET /healthz`.
@@ -94,14 +94,14 @@ Deferred:
 
 ### Scope for Planning
 
-Create the first `gateway-core` implementation as one vertical slice: config,
+Create the first `orchestrator-core` implementation as one vertical slice: config,
 HTTP inbound adapter, domain/application ports, orchestration service, outbound
 API reporter, stub agent/recording/media adapters, and tests.
 
 ### Success Criteria
 
 - `go test ./...` passes.
-- `go build ./cmd/gateway` passes.
+- `go build ./cmd/orchestrator` passes.
 - Dispatch without valid service auth returns `401`.
 - Dispatch with `attachAgent: true` reports `agent.started` after agent attach.
 - Dispatch with `recording.enabled: true` reports `recording.started`.
@@ -111,7 +111,7 @@ API reporter, stub agent/recording/media adapters, and tests.
 ### Suggested Validation
 
 - `go test ./...`
-- `go build ./cmd/gateway`
+- `go build ./cmd/orchestrator`
 
 ### Parallelization Hints
 

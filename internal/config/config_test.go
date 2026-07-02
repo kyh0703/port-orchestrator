@@ -11,7 +11,7 @@ func TestValidateRequiresServiceTokens(t *testing.T) {
 
 func TestValidateAcceptsRequiredServiceTokens(t *testing.T) {
 	cfg := Config{
-		ServiceToken:    "gateway-secret",
+		ServiceToken:    "orchestrator-secret",
 		APIServiceToken: "api-secret",
 	}
 

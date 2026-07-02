@@ -1,10 +1,10 @@
 .PHONY: build test run
 
 build:
-	go build -o bin/gateway ./cmd/gateway
+	go build -o bin/orchestrator ./cmd/orchestrator
 
 test:
 	go test ./...
 
 run:
-	go run ./cmd/gateway
+	go run ./cmd/orchestrator

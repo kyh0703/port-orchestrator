@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kyh0703/port-gateway/internal/domain/session"
+	"github.com/kyh0703/port-orchestrator/internal/domain/session"
 )
 
 func TestReporterRetriesTransientFailure(t *testing.T) {

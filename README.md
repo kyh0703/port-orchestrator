@@ -1,17 +1,17 @@
-# port-gateway
+# port-orchestrator
 
 Internal orchestration service for room-based voice conversations.
 
-`port-gateway` receives service-authenticated dispatches from `port-api`,
-coordinates gateway-managed participants with `port-media`, and reports
+`port-orchestrator` receives service-authenticated dispatches from `port-api`,
+coordinates orchestrator-managed participants with `port-media`, and reports
 lifecycle events back to `port-api`.
 
 ## Run
 
 ```bash
-GATEWAY_SERVICE_TOKEN=dev-token \
+ORCHESTRATOR_SERVICE_TOKEN=dev-token \
 PORT_API_SERVICE_TOKEN=dev-api-token \
-go run ./cmd/gateway
+go run ./cmd/orchestrator
 ```
 
 ## Endpoints
@@ -22,7 +22,7 @@ go run ./cmd/gateway
 Dispatch requests require:
 
 ```text
-Authorization: Bearer <GATEWAY_SERVICE_TOKEN>
+Authorization: Bearer <ORCHESTRATOR_SERVICE_TOKEN>
 ```
 
 ## Verify
