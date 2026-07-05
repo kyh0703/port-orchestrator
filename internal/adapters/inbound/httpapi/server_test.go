@@ -10,21 +10,35 @@ import (
 	"github.com/kyh0703/port-orchestrator/internal/domain/session"
 )
 
-func TestDispatchRejectsMissingServiceAuth(t *testing.T) {
-	server := NewServer(Config{ServiceToken: "secret"}, &capturingOrchestrator{}, nil)
-	request := httptest.NewRequest(http.MethodPost, "/internal/v1/dispatches", strings.NewReader(`{}`))
+func TestDispatchAllowsRequestWithoutInternalAuth(t *testing.T) {
+	orchestrator := &capturingOrchestrator{}
+	server := NewServer(orchestrator, nil)
+	body := `{
+		"conversationId":"conv_1",
+		"sessionId":"sess_1",
+		"roomId":"room_1",
+		"mediaSignalingUrl":"ws://media",
+		"serviceTokens":{
+			"agent":{"participantId":"agent_1","participantToken":"agent_token"}
+		},
+		"capabilities":{"attachAgent":true}
+	}`
+	request := httptest.NewRequest(http.MethodPost, "/internal/v1/dispatches", strings.NewReader(body))
 	response := httptest.NewRecorder()
 
 	server.Routes().ServeHTTP(response, request)
 
-	if response.Code != http.StatusUnauthorized {
-		t.Fatalf("status = %d, want %d", response.Code, http.StatusUnauthorized)
+	if response.Code != http.StatusAccepted {
+		t.Fatalf("status = %d, want %d body=%s", response.Code, http.StatusAccepted, response.Body.String())
+	}
+	if orchestrator.dispatch.SessionID != "sess_1" {
+		t.Fatalf("session id = %q, want sess_1", orchestrator.dispatch.SessionID)
 	}
 }
 
 func TestDispatchAcceptsAuthorizedRequest(t *testing.T) {
 	orchestrator := &capturingOrchestrator{}
-	server := NewServer(Config{ServiceToken: "secret"}, orchestrator, nil)
+	server := NewServer(orchestrator, nil)
 	body := `{
 		"conversationId":"conv_1",
 		"sessionId":"sess_1",
@@ -38,7 +52,6 @@ func TestDispatchAcceptsAuthorizedRequest(t *testing.T) {
 		"recording":{"enabled":true}
 	}`
 	request := httptest.NewRequest(http.MethodPost, "/internal/v1/dispatches", strings.NewReader(body))
-	request.Header.Set("Authorization", "Bearer secret")
 	response := httptest.NewRecorder()
 
 	server.Routes().ServeHTTP(response, request)

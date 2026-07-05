@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"os"
 	"strconv"
 	"time"
@@ -9,10 +8,7 @@ import (
 
 type Config struct {
 	HTTPAddr             string
-	ServiceToken         string
-	APIBaseURL           string
-	APIEventPath         string
-	APIServiceToken      string
+	APIGRPCAddr          string
 	APIReportMaxAttempts int
 	APIReportRetryDelay  time.Duration
 	APIReportTimeout     time.Duration
@@ -22,10 +18,7 @@ type Config struct {
 func Load() Config {
 	return Config{
 		HTTPAddr:             envString("ORCHESTRATOR_HTTP_ADDR", ":8080"),
-		ServiceToken:         os.Getenv("ORCHESTRATOR_SERVICE_TOKEN"),
-		APIBaseURL:           envString("PORT_API_BASE_URL", "http://localhost:3000"),
-		APIEventPath:         envString("PORT_API_EVENT_PATH", "/internal/v1/gateway/events"),
-		APIServiceToken:      os.Getenv("PORT_API_SERVICE_TOKEN"),
+		APIGRPCAddr:          envString("PORT_API_GRPC_ADDR", "localhost:50051"),
 		APIReportMaxAttempts: envInt("PORT_API_REPORT_MAX_ATTEMPTS", 3),
 		APIReportRetryDelay:  envDuration("PORT_API_REPORT_RETRY_DELAY", 200*time.Millisecond),
 		APIReportTimeout:     envDuration("PORT_API_REPORT_TIMEOUT", 5*time.Second),
@@ -34,12 +27,6 @@ func Load() Config {
 }
 
 func (c Config) Validate() error {
-	if c.ServiceToken == "" {
-		return errors.New("ORCHESTRATOR_SERVICE_TOKEN is required")
-	}
-	if c.APIServiceToken == "" {
-		return errors.New("PORT_API_SERVICE_TOKEN is required")
-	}
 	return nil
 }
 

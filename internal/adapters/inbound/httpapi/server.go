@@ -1,33 +1,25 @@
 package httpapi
 
 import (
-	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"log/slog"
 	"net/http"
-	"strings"
 
 	"github.com/kyh0703/port-orchestrator/internal/domain/session"
 	"github.com/kyh0703/port-orchestrator/internal/ports"
 )
 
-type Config struct {
-	ServiceToken string
-}
-
 type Server struct {
-	cfg          Config
 	orchestrator ports.Orchestrator
 	logger       *slog.Logger
 }
 
-func NewServer(cfg Config, orchestrator ports.Orchestrator, logger *slog.Logger) *Server {
+func NewServer(orchestrator ports.Orchestrator, logger *slog.Logger) *Server {
 	if logger == nil {
 		logger = slog.Default()
 	}
 	return &Server{
-		cfg:          cfg,
 		orchestrator: orchestrator,
 		logger:       logger,
 	}
@@ -45,10 +37,6 @@ func (s *Server) health(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (s *Server) dispatch(w http.ResponseWriter, r *http.Request) {
-	if !s.authorized(r) {
-		writeJSON(w, http.StatusUnauthorized, errorResponse{Error: "unauthorized"})
-		return
-	}
 	if s.orchestrator == nil {
 		writeJSON(w, http.StatusInternalServerError, errorResponse{Error: "orchestrator unavailable"})
 		return
@@ -79,19 +67,6 @@ func (s *Server) dispatch(w http.ResponseWriter, r *http.Request) {
 		"roomId":         dispatch.RoomID,
 		"status":         "accepted",
 	})
-}
-
-func (s *Server) authorized(r *http.Request) bool {
-	if s.cfg.ServiceToken == "" {
-		return false
-	}
-	value := r.Header.Get("Authorization")
-	const prefix = "Bearer "
-	if !strings.HasPrefix(value, prefix) {
-		return false
-	}
-	token := strings.TrimPrefix(value, prefix)
-	return subtle.ConstantTimeCompare([]byte(token), []byte(s.cfg.ServiceToken)) == 1
 }
 
 type dispatchRequest struct {
