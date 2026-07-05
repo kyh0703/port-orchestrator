@@ -9,11 +9,14 @@ import (
 	"syscall"
 	"time"
 
+	apiv1 "github.com/kyh0703/port-contracts/gen/go/port/api/v1"
 	"github.com/kyh0703/port-orchestrator/internal/adapters/inbound/httpapi"
-	"github.com/kyh0703/port-orchestrator/internal/adapters/outbound/apihttp"
+	"github.com/kyh0703/port-orchestrator/internal/adapters/outbound/apigrpc"
 	"github.com/kyh0703/port-orchestrator/internal/adapters/outbound/stub"
 	"github.com/kyh0703/port-orchestrator/internal/application/orchestration"
 	"github.com/kyh0703/port-orchestrator/internal/config"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -24,17 +27,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	apiClient := &http.Client{
-		Timeout: cfg.APIReportTimeout,
+	apiConn, err := grpc.NewClient(cfg.APIGRPCAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		logger.Error("create api grpc client", "error", err)
+		os.Exit(1)
 	}
+	defer apiConn.Close()
 
-	reporter := apihttp.NewReporter(apihttp.ReporterConfig{
-		BaseURL:      cfg.APIBaseURL,
-		EventPath:    cfg.APIEventPath,
-		ServiceToken: cfg.APIServiceToken,
-		MaxAttempts:  cfg.APIReportMaxAttempts,
-		RetryDelay:   cfg.APIReportRetryDelay,
-	}, apiClient)
+	reporter := apigrpc.NewReporter(apigrpc.ReporterConfig{
+		MaxAttempts: cfg.APIReportMaxAttempts,
+		RetryDelay:  cfg.APIReportRetryDelay,
+		Timeout:     cfg.APIReportTimeout,
+	}, apiv1.NewApiEventServiceClient(apiConn))
 
 	orchestrator := orchestration.NewService(orchestration.Dependencies{
 		Media:    stub.NewMediaConnector(logger),
@@ -44,9 +48,7 @@ func main() {
 		Clock:    time.Now,
 	})
 
-	handler := httpapi.NewServer(httpapi.Config{
-		ServiceToken: cfg.ServiceToken,
-	}, orchestrator, logger)
+	handler := httpapi.NewServer(orchestrator, logger)
 
 	server := &http.Server{
 		Addr:              cfg.HTTPAddr,
